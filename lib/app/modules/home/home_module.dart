@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'home_controller.dart';
 import 'home_view.dart';
+import 'providers/company_provider.dart';
+import 'repositories/company_repository.dart';
+import 'usecases/fetch_companies_usecase.dart';
 
 class HomeModule extends StatefulWidget {
   const HomeModule({super.key});
@@ -17,7 +20,15 @@ class _HomeModuleState extends State<HomeModule> {
   void initState() {
     super.initState();
 
-    controller = HomeController();
+    // TODO: Replace with Service Locator
+
+    controller = HomeController(
+      FetchCompaniesUsecase(
+        CompanyRepository(
+          CompanyProvider(),
+        ),
+      ),
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.initialize(context);

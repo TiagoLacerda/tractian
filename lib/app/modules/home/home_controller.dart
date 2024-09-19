@@ -4,11 +4,18 @@ import 'package:flutter/material.dart';
 
 import '../assets/assets_module.dart';
 import 'models/company.dart';
+import 'usecases/fetch_companies_usecase.dart';
 
 class HomeController {
+  final IFetchCompaniesUsecase fetchCompaniesUsecase;
+
   final ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
   final List<Company> companies = <Company>[];
+
+  HomeController(
+    this.fetchCompaniesUsecase,
+  );
 
   Future<void> initialize(BuildContext context) async {
     await load(context);
@@ -19,18 +26,11 @@ class HomeController {
 
     try {
       isLoading.value = true;
-      // TODO: Load companies
 
-      await Future.delayed(const Duration(seconds: 3));
+      final companies = await fetchCompaniesUsecase();
 
-      companies.clear();
-      companies.addAll(
-        [
-          const Company(id: '662fd0ee639069143a8fc387', name: 'Jaguar'),
-          const Company(id: '662fd0fab3fd5656edb39af5', name: 'Tobias'),
-          const Company(id: '662fd100f990557384756e58', name: 'Apex'),
-        ],
-      );
+      this.companies.clear();
+      this.companies.addAll(companies);
     } catch (e) {
       log(e.toString());
 
