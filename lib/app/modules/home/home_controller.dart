@@ -54,11 +54,17 @@ class HomeController {
     }
   }
 
-  Future<void> onPressedCompanyWidget(BuildContext context) async {
+  Future<void> onPressedCompanyWidget(
+      BuildContext context, Company company) async {
     try {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const AssetsModule(),
+          settings: RouteSettings(
+            arguments: {
+              'companyId': company.id,
+            },
+          ),
         ),
       );
     } catch (e) {

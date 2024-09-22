@@ -42,8 +42,12 @@ class HomeView extends StatelessWidget {
                           itemBuilder: (BuildContext context, int index) {
                             return CompanyWidget(
                               company: controller.companies[index],
-                              onPressed: (context) =>
-                                  controller.onPressedCompanyWidget(context),
+                              onPressed: (context) {
+                                controller.onPressedCompanyWidget(
+                                  context,
+                                  controller.companies[index],
+                                );
+                              },
                             );
                           },
                           separatorBuilder: (context, index) {

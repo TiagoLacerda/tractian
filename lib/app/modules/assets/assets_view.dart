@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide RefreshProgressIndicator;
 import 'assets_controller.dart';
 import 'enums/sensor_type.dart';
 import 'enums/status.dart';
+import 'widgets/item_widget.dart';
 import 'widgets/refresh_progress_indicator.dart';
 
 class AssetsView extends StatefulWidget {
@@ -35,6 +36,9 @@ class _AssetsViewState extends State<AssetsView> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: This is no good, change to layout builder to get constraints
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assets'),
@@ -201,7 +205,20 @@ class _AssetsViewState extends State<AssetsView> {
                       child: CircularProgressIndicator(),
                     );
                   } else {
-                    return const Placeholder();
+                    return ListView.builder(
+                      padding: const EdgeInsets.only(
+                        top: 8.0,
+                        bottom: 56.0 + 16.0,
+                      ),
+                      itemCount: widget.controller.items.length,
+                      itemBuilder: (context, index) {
+                        return ItemWidget(
+                          item: widget.controller.items[index],
+                          width: width,
+                          shouldDrawLine: const [],
+                        );
+                      },
+                    );
                   }
                 },
               ),

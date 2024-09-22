@@ -3,19 +3,42 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'models/item.dart';
+import 'usecases/fetch_assets_usecase.dart';
+import 'usecases/fetch_locations_usecase.dart';
 
 class AssetsController {
+  final IFetchAssetsUsecase fetchAssetsUsecase;
+  final IFetchLocationsUsecase fetchLocationsUsecase;
+
   final ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
   final List<Item> items = <Item>[];
 
   /// How long it takes to trigger an automatic refresh.
-  final Duration refreshDuration = const Duration(seconds: 5);
+  final Duration refreshDuration = const Duration(seconds: 30);
 
-  AssetsController();
+  late final String companyId;
 
-  Future<void> initialize(BuildContext context) async {
-    await load(context);
+  AssetsController(
+    this.fetchAssetsUsecase,
+    this.fetchLocationsUsecase,
+  );
+
+  Future<void> initialize(
+    BuildContext context, {
+    dynamic args,
+  }) async {
+    try {
+      final map = (args as Map<String, dynamic>);
+
+      companyId = map['companyId'];
+
+      await load(context);
+    } catch (e) {
+      log(e.toString());
+
+      // TODO: POP and show error dialog
+    }
   }
 
   Future<void> load(BuildContext context) async {
@@ -24,12 +47,20 @@ class AssetsController {
     try {
       isLoading.value = true;
 
-      await Future.delayed(const Duration(seconds: 10));
+      final locations = await fetchLocationsUsecase(
+        companyId: companyId,
+      );
 
-      // final items = await fetchItemsUsecase();
+      final (:assets, :components) = await fetchAssetsUsecase(
+        companyId: companyId,
+      );
 
-      // this.items.clear();
-      // this.items.addAll(companies);
+      items.clear();
+      items.addAll(locations);
+      items.addAll(assets);
+      items.addAll(components);
+
+      log('Loaded a total of ${items.length} items.');
     } catch (e) {
       log(e.toString());
 
