@@ -18,10 +18,16 @@ class _AssetsModuleState extends State<AssetsModule> {
     super.initState();
 
     controller = AssetsController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.initialize(context);
+    });
   }
 
   @override
   void dispose() {
+    controller.dispose();
+    
     super.dispose();
   }
 
