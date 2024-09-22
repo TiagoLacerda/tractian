@@ -26,6 +26,7 @@ class AppView extends StatelessWidget {
         ),
         useMaterial3: true,
       ).copyWith(
+        scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF17192D),
           foregroundColor: Colors.white,
@@ -44,6 +45,26 @@ class AppView extends StatelessWidget {
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF77818C),
+            side: const BorderSide(
+              color: Color(0xFFD8DFE6),
+              width: 2.0,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(3.0),
+            ),
+            padding: const EdgeInsets.only(
+              top: 6.0,
+              right: 16.0,
+              bottom: 6.0,
+              left: 14.0,
+            ),
+            visualDensity: VisualDensity.compact,
           ),
         ),
       ),
