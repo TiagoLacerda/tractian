@@ -14,3 +14,19 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+## TODO
+
++ Nest items (somehow)
+
++ Determine the depth of the whole tree (to limit width)
+
++ Tree approach
+
+    O(N) space
+
++ Map<String, List<String>> approach
+
+    O(N) space
+

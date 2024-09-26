@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
+import 'models/asset.dart';
+import 'models/component.dart';
 import 'models/item.dart';
 import 'usecases/fetch_assets_usecase.dart';
 import 'usecases/fetch_locations_usecase.dart';
@@ -12,7 +14,11 @@ class AssetsController {
 
   final ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
-  final List<Item> items = <Item>[];
+  Map<String, Item> items = <String, Item>{};
+
+  Map<String?, List<String>> children = <String?, List<String>>{
+    null: [],
+  };
 
   /// How long it takes to trigger an automatic refresh.
   final Duration refreshDuration = const Duration(seconds: 30);
@@ -55,12 +61,40 @@ class AssetsController {
         companyId: companyId,
       );
 
-      items.clear();
-      items.addAll(locations);
-      items.addAll(assets);
-      items.addAll(components);
+      //
 
-      log('Loaded a total of ${items.length} items.');
+      final Map<String, Item> items = <String, Item>{};
+
+      final Map<String?, List<String>> children = <String?, List<String>>{
+        null: [],
+      };
+
+      // for (var item in [...locations, ...assets, ...components]) {
+      //   log(jsonEncode(item.toMap()));
+      // }
+
+      for (var item in [...locations, ...assets, ...components]) {
+        items[item.id] = item;
+
+        String? parentId;
+
+        if (item.parentId != null) {
+          parentId = item.parentId;
+        } else if (item is Asset && item.locationId != null) {
+          parentId = item.locationId;
+        } else if (item is Component && item.locationId != null) {
+          parentId = item.locationId;
+        }
+
+        if (children[parentId] == null) children[parentId] = [];
+
+        children[parentId]!.add(item.id);
+      }
+
+      //
+
+      this.items = items;
+      this.children = children;
     } catch (e) {
       log(e.toString());
 

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide RefreshProgressIndicator;
 import 'assets_controller.dart';
 import 'enums/sensor_type.dart';
 import 'enums/status.dart';
+import 'usecases/build_metadata_usecase.dart';
 import 'widgets/item_widget.dart';
 import 'widgets/refresh_progress_indicator.dart';
 
@@ -23,9 +24,9 @@ class AssetsView extends StatefulWidget {
 class _AssetsViewState extends State<AssetsView> {
   final TextEditingController textEditingController = TextEditingController();
 
-  Pattern? filterByPattern;
-  SensorType? filterBySensorType;
-  Status? filterByStatus;
+  Pattern? pattern;
+  SensorType? sensorType;
+  Status? status;
 
   @override
   void dispose() {
@@ -36,9 +37,6 @@ class _AssetsViewState extends State<AssetsView> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: This is no good, change to layout builder to get constraints
-    final width = MediaQuery.of(context).size.width;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assets'),
@@ -101,10 +99,10 @@ class _AssetsViewState extends State<AssetsView> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    if (value.isEmpty) {
-                      filterByPattern == null;
+                    if (value.trim().isEmpty) {
+                      pattern = null;
                     } else {
-                      filterByPattern = value;
+                      pattern = value;
                     }
                   });
                 },
@@ -125,14 +123,14 @@ class _AssetsViewState extends State<AssetsView> {
                       FocusManager.instance.primaryFocus?.unfocus();
 
                       setState(() {
-                        if (filterBySensorType == null) {
-                          filterBySensorType = SensorType.energy;
+                        if (sensorType == null) {
+                          sensorType = SensorType.energy;
                         } else {
-                          filterBySensorType = null;
+                          sensorType = null;
                         }
                       });
                     },
-                    style: filterBySensorType == null
+                    style: sensorType == null
                         ? null
                         : OutlinedButton.styleFrom(
                             backgroundColor: const Color(0xFF2188FF),
@@ -158,14 +156,14 @@ class _AssetsViewState extends State<AssetsView> {
                       FocusManager.instance.primaryFocus?.unfocus();
 
                       setState(() {
-                        if (filterByStatus == null) {
-                          filterByStatus = Status.alert;
+                        if (status == null) {
+                          status = Status.alert;
                         } else {
-                          filterByStatus = null;
+                          status = null;
                         }
                       });
                     },
-                    style: filterByStatus == null
+                    style: status == null
                         ? null
                         : OutlinedButton.styleFrom(
                             backgroundColor: const Color(0xFF2188FF),
@@ -195,31 +193,63 @@ class _AssetsViewState extends State<AssetsView> {
               color: Color(0xFFEAEEF2),
             ),
             Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: widget.controller.isLoading,
-                builder: (context, value, child) {
-                  log(value.toString());
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
 
-                  if (value) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else {
-                    return ListView.builder(
-                      padding: const EdgeInsets.only(
-                        top: 8.0,
-                        bottom: 56.0 + 16.0,
-                      ),
-                      itemCount: widget.controller.items.length,
-                      itemBuilder: (context, index) {
-                        return ItemWidget(
-                          item: widget.controller.items[index],
-                          width: width,
-                          shouldDrawLine: const [],
+                  return ValueListenableBuilder(
+                    valueListenable: widget.controller.isLoading,
+                    builder: (context, value, child) {
+                      if (value) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
                         );
-                      },
-                    );
-                  }
+                      } else {
+                        final now = DateTime.now();
+                        final hour = now.hour.toString().padLeft(2, '0');
+                        final minute = now.minute.toString().padLeft(2, '0');
+                        final second = now.second.toString().padLeft(2, '0');
+
+                        final message = '''
+[$hour:$minute:$second]: Will build metadata: 
+  pattern: $pattern,
+  sensorType: $sensorType,
+  status: $status
+''';
+
+                        log(message);
+
+                        final metadata = BuildMetadataUsecase().call(
+                          items: widget.controller.items,
+                          children: widget.controller.children,
+                          pattern: pattern,
+                          sensorType: sensorType,
+                          status: status,
+                        );
+
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: width + metadata.depth * 22.0,
+                            child: ListView.builder(
+                              padding: const EdgeInsets.only(
+                                top: 8.0,
+                                bottom: 56.0 + 16.0,
+                              ),
+                              itemCount: metadata.records.length,
+                              itemBuilder: (context, index) {
+                                return ItemWidget(
+                                  item: metadata.records[index].item,
+                                  width: width,
+                                  pipes: metadata.records[index].pipes,
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  );
                 },
               ),
             ),
