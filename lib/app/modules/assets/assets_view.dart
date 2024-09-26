@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide RefreshProgressIndicator;
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../core/theme/app_icons.dart';
 import 'assets_controller.dart';
 import 'enums/sensor_type.dart';
 import 'enums/status.dart';
@@ -143,6 +145,7 @@ class _AssetsViewState extends State<AssetsView> {
                 child: Wrap(
                   spacing: 8.0,
                   runSpacing: 8.0,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     OutlinedButton(
                       onPressed: () {
@@ -208,6 +211,66 @@ class _AssetsViewState extends State<AssetsView> {
                             'Crítico',
                           ),
                         ],
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          widget.controller.expandAll(
+                            node: widget.controller.root,
+                          );
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        minimumSize: const Size(32.0, 32.0),
+                        maximumSize: const Size(32.0, 32.0),
+                      ),
+                      child: SizedBox.square(
+                        dimension: 32.0,
+                        child: Center(
+                          child: SvgPicture.asset(
+                            AppIcons.expand_all,
+                            width: 16.0,
+                            height: 16.0,
+                            colorFilter: const ColorFilter.mode(
+                              Color(0xFF77818C),
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          widget.controller.collapseAll(
+                            node: widget.controller.root,
+                          );
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        minimumSize: const Size(32.0, 32.0),
+                        maximumSize: const Size(32.0, 32.0),
+                      ),
+                      child: SizedBox.square(
+                        dimension: 32.0,
+                        child: Center(
+                          child: SvgPicture.asset(
+                            AppIcons.collapse_all,
+                            width: 16.0,
+                            height: 16.0,
+                            colorFilter: const ColorFilter.mode(
+                              Color(0xFF77818C),
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],

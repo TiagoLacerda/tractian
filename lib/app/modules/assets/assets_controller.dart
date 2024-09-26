@@ -85,6 +85,26 @@ class AssetsController {
     }
   }
 
+  void expandAll({required Node<Item?> node}) {
+    if (node.value is Item) {
+      node.value!.collapsed = false;
+    }
+
+    for (var child in node.children) {
+      expandAll(node: child);
+    }
+  }
+
+  void collapseAll({required Node<Item?> node}) {
+    if (node.value is Item) {
+      node.value!.collapsed = true;
+    }
+
+    for (var child in node.children) {
+      collapseAll(node: child);
+    }
+  }
+
   void dispose() {
     isLoading.dispose();
   }
