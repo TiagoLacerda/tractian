@@ -1,5 +1,6 @@
-import 'dart:math' hide log;
+import 'dart:math';
 
+import '../../../core/node.dart';
 import '../enums/sensor_type.dart';
 import '../enums/status.dart';
 import '../models/component.dart';
@@ -8,8 +9,7 @@ import '../models/metadata.dart';
 
 abstract class IBuildMetadataUsecase {
   Metadata call({
-    required Map<String, Item> items,
-    required Map<String?, List<String>> children,
+    required Node<Item?> root,
     required Pattern? pattern,
     required SensorType? sensorType,
     required Status? status,
@@ -19,114 +19,125 @@ abstract class IBuildMetadataUsecase {
 class BuildMetadataUsecase implements IBuildMetadataUsecase {
   @override
   Metadata call({
-    required Map<String, Item> items,
-    required Map<String?, List<String>> children,
+    required Node<Item?> root,
     required Pattern? pattern,
     required SensorType? sensorType,
     required Status? status,
   }) {
-    if (items.isEmpty) {
-      return (depth: 0, records: []);
-    }
+    final clone = root.copy((e) => e?.copy());
 
-    if (children[null] == null) {
-      throw ArgumentError(
-        'Impossible to build Metadata without children[null] present.',
-      );
+    prune(
+      node: clone,
+      pattern: pattern,
+      sensorType: sensorType,
+      status: status,
+    );
+
+    if (clone.children.isEmpty) {
+      return (depth: 0, records: []);
     }
 
     var depth = 0;
     var records = <Record>[];
 
-    final ids = children[null] ?? [];
-
-    for (int i = 0; i < ids.length; i++) {
-      final data = _inner(
-        // Assumes dataset is sound (all referenced ids are present)
-        item: items[ids[i]]!,
-        items: items,
-        children: children,
-        pattern: pattern,
-        sensorType: sensorType,
-        status: status,
+    for (int i = 0; i < clone.children.length; i++) {
+      final innerDepth = _inner(
+        node: clone.children[i],
+        records: records,
         pipes: [],
-        isLastSibling: i == ids.length - 1,
       );
 
-      depth = max(depth, data.depth);
-
-      records.addAll(data.records);
+      depth = max(depth, innerDepth);
     }
 
     return (depth: depth, records: records);
   }
 
-  Metadata _inner({
-    required Item item,
-    required Map<String, Item> items,
-    required Map<String?, List<String>> children,
+  /// Prune the tree, leaving only the items that are supposed to be shown, that
+  /// is:
+  ///
+  /// + If no filter is applied, show all items;
+  /// + Otherwise, show only matching items and their ancestors.
+  bool prune({
+    required Node<Item?> node,
     required Pattern? pattern,
     required SensorType? sensorType,
     required Status? status,
-    required List<Pipe> pipes,
-    required bool isLastSibling,
   }) {
-    var depth = 0;
-    var records = <Record>[];
-
-    final ids = children[item.id] ?? [];
-
-    for (int i = 0; i < ids.length; i++) {
-      final data = _inner(
-        // Assumes dataset is sound (all referenced ids are present)
-        item: items[ids[i]]!,
-        items: items,
-        children: children,
+    for (int i = 0; i < node.children.length; i++) {
+      final remove = prune(
+        node: node.children[i],
         pattern: pattern,
         sensorType: sensorType,
         status: status,
-        pipes: [
-          ...pipes,
-          Pipe.none,
-        ],
-        isLastSibling: i == ids.length - 1,
       );
 
-      depth = max(depth, data.depth);
-
-      records.addAll(data.records);
+      if (remove) {
+        node.children.removeAt(i);
+        i--;
+      }
     }
 
-    bool include = true;
+    var include = true;
 
-    if (records.isEmpty) {
+    if (node.children.isEmpty) {
       if (pattern != null) {
-        if (!item.name
-            .toLowerCase()
-            .contains(pattern.toString().toLowerCase())) {
-          include = false;
+        if (node.value != null) {
+          final name = node.value!.name.toLowerCase();
+          final search = pattern.toString().toLowerCase();
+
+          if (!name.contains(search)) {
+            include = false;
+          }
         }
       }
 
       if (sensorType != null) {
-        if (!(item is Component && item.sensorType == sensorType)) {
+        if (!(node.value is Component &&
+            (node.value as Component).sensorType == sensorType)) {
           include = false;
         }
       }
 
       if (status != null) {
-        if (!(item is Component && item.status == status)) {
+        if (!(node.value is Component &&
+            (node.value as Component).status == status)) {
           include = false;
         }
       }
     }
 
-    if (include) {
-      depth++;
+    return !include;
+  }
 
-      records.insert(0, (item: item, pipes: pipes));
+  int _inner({
+    required Node<Item?> node,
+    required List<Record> records,
+    required List<Pipe> pipes,
+  }) {
+    records.add((item: node.value!, pipes: pipes));
+
+    int depth = 0;
+
+    for (int i = 0; i < node.children.length; i++) {
+      final innerDepth = _inner(
+        node: node.children[i],
+        records: records,
+        pipes: [
+          if (pipes.isNotEmpty) ...[
+            ...pipes.sublist(0, pipes.length - 1),
+            if (pipes.last == Pipe.junction) Pipe.straight,
+            if (pipes.last == Pipe.bend) Pipe.none,
+          ],
+          i < node.children.length - 1 ? Pipe.junction : Pipe.bend,
+        ],
+      );
+
+      depth = max(depth, innerDepth);
     }
 
-    return (depth: depth, records: records);
+    depth++;
+
+    return depth;
   }
 }

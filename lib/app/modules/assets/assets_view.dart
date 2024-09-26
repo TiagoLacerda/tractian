@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart' hide RefreshProgressIndicator;
 
@@ -22,6 +22,8 @@ class AssetsView extends StatefulWidget {
 }
 
 class _AssetsViewState extends State<AssetsView> {
+  final ScrollController verticalScrollController = ScrollController();
+  final ScrollController horizontalScrollController = ScrollController();
   final TextEditingController textEditingController = TextEditingController();
 
   Pattern? pattern;
@@ -30,6 +32,8 @@ class _AssetsViewState extends State<AssetsView> {
 
   @override
   void dispose() {
+    verticalScrollController.dispose();
+    horizontalScrollController.dispose();
     textEditingController.dispose();
 
     super.dispose();
@@ -37,6 +41,7 @@ class _AssetsViewState extends State<AssetsView> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Add gesture detector to unfocus search bar
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assets'),
@@ -60,6 +65,7 @@ class _AssetsViewState extends State<AssetsView> {
                 bottom: 8.0,
               ),
               // TODO: Change font sizes globally, instead of per widget
+              // TODO: Add button for clearing the search bar
               child: TextField(
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: 14.0,
@@ -205,45 +211,41 @@ class _AssetsViewState extends State<AssetsView> {
                           child: CircularProgressIndicator(),
                         );
                       } else {
-                        final now = DateTime.now();
-                        final hour = now.hour.toString().padLeft(2, '0');
-                        final minute = now.minute.toString().padLeft(2, '0');
-                        final second = now.second.toString().padLeft(2, '0');
-
-                        final message = '''
-[$hour:$minute:$second]: Will build metadata: 
-  pattern: $pattern,
-  sensorType: $sensorType,
-  status: $status
-''';
-
-                        log(message);
-
                         final metadata = BuildMetadataUsecase().call(
-                          items: widget.controller.items,
-                          children: widget.controller.children,
+                          root: widget.controller.root,
                           pattern: pattern,
                           sensorType: sensorType,
                           status: status,
                         );
 
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            width: width + metadata.depth * 22.0,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.only(
-                                top: 8.0,
-                                bottom: 56.0 + 16.0,
+                        return Scrollbar(
+                          controller: horizontalScrollController,
+                          child: SingleChildScrollView(
+                            controller: horizontalScrollController,
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              width: max(
+                                  width, width / 2.0 + metadata.depth * 22.0),
+                              child: Scrollbar(
+                                controller: verticalScrollController,
+                                child: ListView.builder(
+                                  controller: verticalScrollController,
+                                  padding: const EdgeInsets.only(
+                                    top: 8.0,
+                                    left: 8.0,
+                                    right: 8.0,
+                                    bottom: 56.0 + 16.0,
+                                  ),
+                                  itemCount: metadata.records.length,
+                                  itemBuilder: (context, index) {
+                                    return ItemWidget(
+                                      item: metadata.records[index].item,
+                                      width: width,
+                                      pipes: metadata.records[index].pipes,
+                                    );
+                                  },
+                                ),
                               ),
-                              itemCount: metadata.records.length,
-                              itemBuilder: (context, index) {
-                                return ItemWidget(
-                                  item: metadata.records[index].item,
-                                  width: width,
-                                  pipes: metadata.records[index].pipes,
-                                );
-                              },
                             ),
                           ),
                         );

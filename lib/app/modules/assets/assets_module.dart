@@ -8,6 +8,7 @@ import 'repositories/asset_repository.dart';
 import 'repositories/location_repository.dart';
 import 'usecases/fetch_assets_usecase.dart';
 import 'usecases/fetch_locations_usecase.dart';
+import 'usecases/get_item_tree_usecase.dart';
 
 class AssetsModule extends StatefulWidget {
   const AssetsModule({super.key});
@@ -24,14 +25,16 @@ class _AssetsModuleState extends State<AssetsModule> {
     super.initState();
 
     controller = AssetsController(
-      FetchAssetsUsecase(
-        AssetRepository(
-          AssetProvider(),
+      GetItemTreeUsecase(
+        FetchAssetsUsecase(
+          AssetRepository(
+            AssetProvider(),
+          ),
         ),
-      ),
-      FetchLocationsUsecase(
-        LocationRepository(
-          LocationProvider(),
+        FetchLocationsUsecase(
+          LocationRepository(
+            LocationProvider(),
+          ),
         ),
       ),
     );
