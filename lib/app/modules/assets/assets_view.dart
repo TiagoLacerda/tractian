@@ -262,6 +262,14 @@ class _AssetsViewState extends State<AssetsView> {
                                         item: metadata.records[index].item,
                                         width: width,
                                         pipes: metadata.records[index].pipes,
+                                        onTap: () {
+                                          final item =
+                                              metadata.records[index].item;
+
+                                          setState(() {
+                                            item.collapsed = !item.collapsed;
+                                          });
+                                        },
                                       );
                                     },
                                   ),

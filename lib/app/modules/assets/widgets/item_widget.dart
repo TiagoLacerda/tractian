@@ -16,12 +16,14 @@ class ItemWidget extends StatelessWidget {
   final Item item;
   final double width;
   final List<Pipe> pipes;
+  final void Function()? onTap;
 
   const ItemWidget({
     super.key,
     required this.item,
     required this.width,
     required this.pipes,
+    this.onTap,
   });
 
   @override
@@ -85,25 +87,43 @@ class ItemWidget extends StatelessWidget {
       );
     });
 
-    return SizedBox(
-      width: max(width, width / 2.0 + pipes.length * 22.0),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ...leading,
-            icon,
-            const SizedBox(width: 4.0),
-            Flexible(
-              child: Text(
-                item.name,
-              ),
-            ),
-            if (suffix != null) ...[
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: max(width, width / 2.0 + pipes.length * 22.0),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...leading,
+              if (item is Component) ...[
+                const CustomPaint(
+                  painter: PipePainter(Pipe.horizontal),
+                  size: Size.square(22.0),
+                )
+              ] else ...[
+                Transform.rotate(
+                  angle: item.collapsed ? -pi * 0.5 : pi * 0.5,
+                  child: const Icon(
+                    Icons.chevron_right_outlined,
+                    size: 22.0,
+                  ),
+                ),
+              ],
+              icon,
               const SizedBox(width: 4.0),
-              suffix,
+              Flexible(
+                child: Text(
+                  item.name,
+                ),
+              ),
+              if (suffix != null) ...[
+                const SizedBox(width: 4.0),
+                suffix,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -124,7 +144,7 @@ class PipePainter extends CustomPainter {
     switch (pipe) {
       case Pipe.none:
         break;
-      case Pipe.straight:
+      case Pipe.vertical:
         canvas.drawLine(
           Offset(size.width / 2.0, 0.0),
           Offset(size.width / 2.0, size.height),
@@ -152,6 +172,13 @@ class PipePainter extends CustomPainter {
         canvas.drawLine(
           Offset(size.width / 2.0, size.height / 2.0),
           Offset(size.width, size.height / 2.0),
+          paint,
+        );
+        break;
+      case Pipe.horizontal:
+        canvas.drawLine(
+          Offset(0.0, size.height / 2.0),
+          Offset(size.width / 2.0, size.height / 2.0),
           paint,
         );
         break;

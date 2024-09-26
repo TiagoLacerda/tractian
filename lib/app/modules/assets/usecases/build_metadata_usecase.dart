@@ -24,7 +24,7 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
     required SensorType? sensorType,
     required Status? status,
   }) {
-    final clone = root.copy((e) => e?.copy());
+    final clone = root.copy((e) => e);
 
     prune(
       node: clone,
@@ -64,6 +64,10 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
     required SensorType? sensorType,
     required Status? status,
   }) {
+    if (node.value is Item && node.value!.collapsed) {
+      node.children.clear();
+    }
+
     for (int i = 0; i < node.children.length; i++) {
       final remove = prune(
         node: node.children[i],
@@ -126,7 +130,7 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
         pipes: [
           if (pipes.isNotEmpty) ...[
             ...pipes.sublist(0, pipes.length - 1),
-            if (pipes.last == Pipe.junction) Pipe.straight,
+            if (pipes.last == Pipe.junction) Pipe.vertical,
             if (pipes.last == Pipe.bend) Pipe.none,
           ],
           i < node.children.length - 1 ? Pipe.junction : Pipe.bend,

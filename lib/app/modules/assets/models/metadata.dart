@@ -2,7 +2,8 @@ import 'item.dart';
 
 enum Pipe {
   none,
-  straight,
+  horizontal,
+  vertical,
   bend,
   junction;
 }
