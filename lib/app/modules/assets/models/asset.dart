@@ -8,7 +8,7 @@ class Asset extends Item {
     required super.name,
     super.parentId,
     this.locationId,
-  }) : assert(!(parentId == null && locationId == null));
+  });
 
   Asset.fromMap(Map<String, dynamic> map)
       : locationId = map['locationId'],
