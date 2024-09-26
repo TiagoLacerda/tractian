@@ -1,15 +1,15 @@
-import 'dart:math';
+import 'dart:math' hide log;
 
+import '../../../core/models/item.dart';
 import '../../../core/node.dart';
 import '../enums/sensor_type.dart';
 import '../enums/status.dart';
 import '../models/component.dart';
-import '../models/item.dart';
 import '../models/metadata.dart';
 
 abstract class IBuildMetadataUsecase {
   Metadata call({
-    required Node<Item?> root,
+    required Node<Item> root,
     required Pattern? pattern,
     required SensorType? sensorType,
     required Status? status,
@@ -19,7 +19,7 @@ abstract class IBuildMetadataUsecase {
 class BuildMetadataUsecase implements IBuildMetadataUsecase {
   @override
   Metadata call({
-    required Node<Item?> root,
+    required Node<Item> root,
     required Pattern? pattern,
     required SensorType? sensorType,
     required Status? status,
@@ -33,22 +33,9 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
       status: status,
     );
 
-    if (clone.children.isEmpty) {
-      return (depth: 0, records: []);
-    }
-
-    var depth = 0;
     var records = <Record>[];
 
-    for (int i = 0; i < clone.children.length; i++) {
-      final innerDepth = _inner(
-        node: clone.children[i],
-        records: records,
-        pipes: [],
-      );
-
-      depth = max(depth, innerDepth);
-    }
+    final depth = _inner(node: clone, records: records, pipes: []);
 
     return (depth: depth, records: records);
   }
@@ -59,15 +46,11 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
   /// + If no filter is applied, show all items;
   /// + Otherwise, show only matching items and their ancestors.
   bool prune({
-    required Node<Item?> node,
+    required Node<Item> node,
     required Pattern? pattern,
     required SensorType? sensorType,
     required Status? status,
   }) {
-    if (node.value is Item && node.value!.collapsed) {
-      node.children.clear();
-    }
-
     for (int i = 0; i < node.children.length; i++) {
       final remove = prune(
         node: node.children[i],
@@ -86,13 +69,11 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
 
     if (node.children.isEmpty) {
       if (pattern != null) {
-        if (node.value != null) {
-          final name = node.value!.name.toLowerCase();
-          final search = pattern.toString().toLowerCase();
+        final name = node.value.name.toLowerCase();
+        final search = pattern.toString().toLowerCase();
 
-          if (!name.contains(search)) {
-            include = false;
-          }
+        if (!name.contains(search)) {
+          include = false;
         }
       }
 
@@ -111,15 +92,19 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
       }
     }
 
+    if (node.value.collapsed) {
+      node.children.clear();
+    }
+
     return !include;
   }
 
   int _inner({
-    required Node<Item?> node,
+    required Node<Item> node,
     required List<Record> records,
     required List<Pipe> pipes,
   }) {
-    records.add((item: node.value!, pipes: pipes));
+    records.add((item: node.value, pipes: pipes));
 
     int depth = 0;
 

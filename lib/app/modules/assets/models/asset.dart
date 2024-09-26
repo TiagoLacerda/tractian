@@ -1,12 +1,13 @@
-import 'item.dart';
+import '../../../core/models/item.dart';
 
 class Asset extends Item {
+  final String? parentId;
   final String? locationId;
 
   Asset({
     required super.id,
     required super.name,
-    super.parentId,
+    this.parentId,
     this.locationId,
   });
 
@@ -19,11 +20,11 @@ class Asset extends Item {
       );
 
   Asset.fromMap(Map<String, dynamic> map)
-      : locationId = map['locationId'],
+      : parentId = map['parentId'],
+        locationId = map['locationId'],
         super(
           id: map['id'],
           name: map['name'],
-          parentId: map['parentId'],
         );
 
   @override

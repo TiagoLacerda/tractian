@@ -1,4 +1,4 @@
-import 'item.dart';
+import '../../../core/models/item.dart';
 
 enum Pipe {
   none,

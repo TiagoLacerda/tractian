@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import '../models/company.dart';
+import '../../../core/models/company.dart';
 import '../providers/company_provider.dart';
 
 abstract class ICompanyRepository {

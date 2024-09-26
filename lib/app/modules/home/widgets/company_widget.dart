@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../core/models/company.dart';
 import '../../../core/theme/app_icons.dart';
-import '../models/company.dart';
 
 class CompanyWidget extends StatelessWidget {
   final Company company;

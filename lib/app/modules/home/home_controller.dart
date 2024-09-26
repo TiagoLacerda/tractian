@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import '../assets/assets_module.dart';
-import 'models/company.dart';
+import '../../core/models/company.dart';
 import 'usecases/fetch_companies_usecase.dart';
 
 class HomeController {
@@ -62,7 +62,7 @@ class HomeController {
           builder: (context) => const AssetsModule(),
           settings: RouteSettings(
             arguments: {
-              'companyId': company.id,
+              'company': company,
             },
           ),
         ),

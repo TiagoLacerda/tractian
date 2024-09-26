@@ -3,12 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../core/models/company.dart';
+import '../../../core/models/item.dart';
 import '../../../core/theme/app_icons.dart';
 import '../enums/sensor_type.dart';
 import '../enums/status.dart';
 import '../models/asset.dart';
 import '../models/component.dart';
-import '../models/item.dart';
 import '../models/location.dart';
 import '../models/metadata.dart';
 
@@ -31,8 +32,16 @@ class ItemWidget extends StatelessWidget {
     Widget icon;
 
     Widget? suffix;
-
-    if (item is Location) {
+    if (item is Company) {
+      icon = SvgPicture.asset(
+        AppIcons.company,
+        width: 22.0,
+        colorFilter: const ColorFilter.mode(
+          Color(0xFF2188FF),
+          BlendMode.srcIn,
+        ),
+      );
+    } else if (item is Location) {
       icon = SvgPicture.asset(
         AppIcons.location,
       );

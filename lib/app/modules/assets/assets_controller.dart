@@ -2,8 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
+import '../../core/models/company.dart';
+import '../../core/models/item.dart';
 import '../../core/node.dart';
-import 'models/item.dart';
 import 'usecases/get_item_tree_usecase.dart';
 
 class AssetsController {
@@ -11,12 +12,12 @@ class AssetsController {
 
   final ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
-  Node<Item?> root = const Node<Item?>(value: null, children: []);
+  Node<Item> root = Node<Item>(value: Company(id: '', name: ''), children: []);
 
   /// How long it takes to trigger an automatic refresh.
   final Duration refreshDuration = const Duration(seconds: 30);
 
-  late final String companyId;
+  late final Company company;
 
   AssetsController(
     this.getItemTreeUsecase,
@@ -29,7 +30,9 @@ class AssetsController {
     try {
       final map = (args as Map<String, dynamic>);
 
-      companyId = map['companyId'];
+      company = map['company'];
+
+      root = Node<Item>(value: company, children: []);
 
       await load(context);
     } catch (e) {
@@ -60,7 +63,7 @@ class AssetsController {
       isLoading.value = true;
 
       root = await getItemTreeUsecase(
-        companyId: companyId,
+        company: company,
       );
     } catch (e) {
       log(e.toString());
@@ -85,20 +88,16 @@ class AssetsController {
     }
   }
 
-  void expandAll({required Node<Item?> node}) {
-    if (node.value is Item) {
-      node.value!.collapsed = false;
-    }
+  void expandAll({required Node<Item> node}) {
+    node.value.collapsed = false;
 
     for (var child in node.children) {
       expandAll(node: child);
     }
   }
 
-  void collapseAll({required Node<Item?> node}) {
-    if (node.value is Item) {
-      node.value!.collapsed = true;
-    }
+  void collapseAll({required Node<Item> node}) {
+    node.value.collapsed = true;
 
     for (var child in node.children) {
       collapseAll(node: child);

@@ -1,8 +1,9 @@
+import '../../../core/models/item.dart';
 import '../enums/sensor_type.dart';
 import '../enums/status.dart';
-import 'item.dart';
 
 class Component extends Item {
+  final String? parentId;
   final String? locationId;
   final String gatewayId;
   final SensorType sensorType;
@@ -11,7 +12,7 @@ class Component extends Item {
   Component({
     required super.id,
     required super.name,
-    super.parentId,
+    this.parentId,
     this.locationId,
     required this.gatewayId,
     required this.sensorType,
@@ -29,15 +30,16 @@ class Component extends Item {
         status: status,
       );
 
+  @override
   Component.fromMap(Map<String, dynamic> map)
-      : locationId = map['locationId'],
+      : parentId = map['parentId'],
+        locationId = map['locationId'],
         gatewayId = map['gatewayId'],
         sensorType = SensorType.parse(map['sensorType']),
         status = Status.parse(map['status']),
         super(
           id: map['id'],
           name: map['name'],
-          parentId: map['parentId'],
         );
 
   @override
