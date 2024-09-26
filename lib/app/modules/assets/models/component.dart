@@ -18,6 +18,17 @@ class Component extends Item {
     required this.status,
   });
 
+  @override
+  Component copy() => Component(
+        id: id,
+        name: name,
+        parentId: parentId,
+        locationId: locationId,
+        gatewayId: gatewayId,
+        sensorType: sensorType,
+        status: status,
+      );
+
   Component.fromMap(Map<String, dynamic> map)
       : locationId = map['locationId'],
         gatewayId = map['gatewayId'],

@@ -7,5 +7,12 @@ class Location extends Item {
     super.parentId,
   });
 
+  @override
+  Location copy() => Location(
+        id: id,
+        name: name,
+        parentId: parentId,
+      );
+
   Location.fromMap(super.map) : super.fromMap();
 }

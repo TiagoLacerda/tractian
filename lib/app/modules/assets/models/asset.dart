@@ -10,6 +10,14 @@ class Asset extends Item {
     this.locationId,
   });
 
+  @override
+  Asset copy() => Asset(
+        id: id,
+        name: name,
+        parentId: parentId,
+        locationId: locationId,
+      );
+
   Asset.fromMap(Map<String, dynamic> map)
       : locationId = map['locationId'],
         super(

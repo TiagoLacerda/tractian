@@ -11,6 +11,12 @@ class Item {
     this.parentId,
   });
 
+  Item copy() => Item(
+        id: id,
+        name: name,
+        parentId: parentId,
+      );
+
   Item.fromMap(Map<String, dynamic> map)
       : id = map['id'],
         name = map['name'],
