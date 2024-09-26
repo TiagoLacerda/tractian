@@ -65,11 +65,10 @@ class _AssetsViewState extends State<AssetsView> {
                   right: 16.0,
                   bottom: 8.0,
                 ),
-                // TODO: Change font sizes globally, instead of per widget
                 // TODO: Add button for clearing the search bar
                 child: TextField(
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 14.0,
+                        color: const Color(0xFF8E98A3),
                       ),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
@@ -97,7 +96,6 @@ class _AssetsViewState extends State<AssetsView> {
                     hintText: 'Buscar Ativo ou Local',
                     hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: const Color(0xFF8E98A3),
-                          fontSize: 14.0,
                         ),
                     filled: true,
                     fillColor: const Color(0xFFEAEFF3),
