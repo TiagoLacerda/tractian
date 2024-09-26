@@ -62,9 +62,17 @@ class AssetsController {
     try {
       isLoading.value = true;
 
-      root = await getItemTreeUsecase(
+      final node = await getItemTreeUsecase(
         company: company,
       );
+
+      node.foo(root, (a, b) {
+        if (a.value.id == b.value.id) {
+          a.value.collapsed = b.value.collapsed;
+        }
+      });
+
+      root = node;
     } catch (e) {
       log(e.toString());
 
