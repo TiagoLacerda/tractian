@@ -7,6 +7,7 @@ import '../../core/theme/app_icons.dart';
 import 'assets_controller.dart';
 import 'enums/sensor_type.dart';
 import 'enums/status.dart';
+import 'models/metadata.dart';
 import 'usecases/build_metadata_usecase.dart';
 import 'widgets/item_widget.dart';
 import 'widgets/refresh_progress_indicator.dart';
@@ -32,11 +33,20 @@ class _AssetsViewState extends State<AssetsView> {
   SensorType? sensorType;
   Status? status;
 
+  late Metadata metadata;
+
   @override
   void dispose() {
     verticalScrollController.dispose();
     horizontalScrollController.dispose();
     textEditingController.dispose();
+
+    metadata = BuildMetadataUsecase().call(
+      root: widget.controller.root,
+      pattern: pattern,
+      sensorType: sensorType,
+      status: status,
+    );
 
     super.dispose();
   }
@@ -289,58 +299,67 @@ class _AssetsViewState extends State<AssetsView> {
                     return ValueListenableBuilder(
                       valueListenable: widget.controller.isLoading,
                       builder: (context, value, child) {
-                        if (value) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else {
-                          final metadata = BuildMetadataUsecase().call(
+                        if (!value) {
+                          metadata = BuildMetadataUsecase().call(
                             root: widget.controller.root,
                             pattern: pattern,
                             sensorType: sensorType,
                             status: status,
                           );
+                        }
 
-                          return Scrollbar(
-                            controller: horizontalScrollController,
-                            child: SingleChildScrollView(
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Scrollbar(
                               controller: horizontalScrollController,
-                              scrollDirection: Axis.horizontal,
-                              child: SizedBox(
-                                width: max(
-                                    width, width / 2.0 + metadata.depth * 22.0),
-                                child: Scrollbar(
-                                  controller: verticalScrollController,
-                                  child: ListView.builder(
+                              child: SingleChildScrollView(
+                                controller: horizontalScrollController,
+                                scrollDirection: Axis.horizontal,
+                                child: SizedBox(
+                                  width: max(width,
+                                      width / 2.0 + metadata.depth * 22.0),
+                                  child: Scrollbar(
                                     controller: verticalScrollController,
-                                    padding: const EdgeInsets.only(
-                                      top: 8.0,
-                                      left: 8.0,
-                                      right: 8.0,
-                                      bottom: 56.0 + 16.0,
-                                    ),
-                                    itemCount: metadata.records.length,
-                                    itemBuilder: (context, index) {
-                                      return ItemWidget(
-                                        item: metadata.records[index].item,
-                                        width: width,
-                                        pipes: metadata.records[index].pipes,
-                                        onTap: () {
-                                          final item =
-                                              metadata.records[index].item;
+                                    child: ListView.builder(
+                                      controller: verticalScrollController,
+                                      padding: const EdgeInsets.only(
+                                        top: 8.0,
+                                        left: 8.0,
+                                        right: 8.0,
+                                        bottom: 56.0 + 16.0,
+                                      ),
+                                      itemCount: metadata.records.length,
+                                      itemBuilder: (context, index) {
+                                        return ItemWidget(
+                                          item: metadata.records[index].item,
+                                          width: width,
+                                          pipes: metadata.records[index].pipes,
+                                          onTap: () {
+                                            final item =
+                                                metadata.records[index].item;
 
-                                          setState(() {
-                                            item.collapsed = !item.collapsed;
-                                          });
-                                        },
-                                      );
-                                    },
+                                            setState(() {
+                                              item.collapsed = !item.collapsed;
+                                            });
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          );
-                        }
+                            if (value) ...[
+                              Container(
+                                color: Colors.white.withOpacity(0.75),
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
                       },
                     );
                   },
