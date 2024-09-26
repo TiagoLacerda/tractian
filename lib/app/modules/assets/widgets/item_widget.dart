@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -84,7 +86,7 @@ class ItemWidget extends StatelessWidget {
     });
 
     return SizedBox(
-      width: width + pipes.length * 22.0,
+      width: max(width, width / 2.0 + pipes.length * 22.0),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
