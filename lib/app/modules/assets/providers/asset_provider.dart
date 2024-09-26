@@ -28,6 +28,8 @@ class AssetProvider implements IAssetProvider {
         ),
       );
 
+      client.close();
+
       if (response.statusCode == 200) {
         return List<Map<String, dynamic>>.from(jsonDecode(response.body));
       } else {
