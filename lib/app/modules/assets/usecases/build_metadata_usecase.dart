@@ -47,13 +47,26 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
   /// + Otherwise, show only matching items and their ancestors.
   bool prune({
     required Node<Item> node,
+    bool ancestorHasPatternMatch = false,
     required Pattern? pattern,
     required SensorType? sensorType,
     required Status? status,
   }) {
+    var hasPatternMatch = false;
+
+    if (pattern != null) {
+      final name = node.value.name.toLowerCase();
+      final search = pattern.toString().toLowerCase();
+
+      if (name.contains(search)) {
+        hasPatternMatch = true;
+      }
+    }
+
     for (int i = 0; i < node.children.length; i++) {
       final remove = prune(
         node: node.children[i],
+        ancestorHasPatternMatch: ancestorHasPatternMatch || hasPatternMatch,
         pattern: pattern,
         sensorType: sensorType,
         status: status,
@@ -68,12 +81,14 @@ class BuildMetadataUsecase implements IBuildMetadataUsecase {
     var include = true;
 
     if (node.children.isEmpty) {
-      if (pattern != null) {
-        final name = node.value.name.toLowerCase();
-        final search = pattern.toString().toLowerCase();
+      if (!ancestorHasPatternMatch) {
+        if (pattern != null) {
+          final name = node.value.name.toLowerCase();
+          final search = pattern.toString().toLowerCase();
 
-        if (!name.contains(search)) {
-          include = false;
+          if (!name.contains(search)) {
+            include = false;
+          }
         }
       }
 
