@@ -65,8 +65,8 @@ class _AssetsViewState extends State<AssetsView> {
                   right: 16.0,
                   bottom: 8.0,
                 ),
-                // TODO: Add button for clearing the search bar
                 child: TextField(
+                  controller: textEditingController,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: const Color(0xFF8E98A3),
                       ),
@@ -93,6 +93,27 @@ class _AssetsViewState extends State<AssetsView> {
                         color: Color(0xFF8E98A3),
                       ),
                     ),
+                    suffixIcon: pattern == null
+                        ? null
+                        : IconButton(
+                            onPressed: () {
+                              setState(() {
+                                textEditingController.text = '';
+                                pattern = null;
+                              });
+                            },
+                            style: IconButton.styleFrom(
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(3.0),
+                                ),
+                              ),
+                            ),
+                            icon: const Icon(
+                              Icons.close_outlined,
+                              size: 16.0,
+                            ),
+                          ),
                     hintText: 'Buscar Ativo ou Local',
                     hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: const Color(0xFF8E98A3),
