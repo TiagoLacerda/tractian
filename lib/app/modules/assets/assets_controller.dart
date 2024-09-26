@@ -15,7 +15,7 @@ class AssetsController {
   Node<Item> root = Node<Item>(value: Company(id: '', name: ''), children: []);
 
   /// How long it takes to trigger an automatic refresh.
-  final Duration refreshDuration = const Duration(seconds: 30);
+  final Duration refreshDuration = const Duration(seconds: 60);
 
   late final Company company;
 
