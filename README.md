@@ -1,32 +1,46 @@
 # tractian
 
-A new Flutter project.
+This project is my submission to Tractian's [Mobile Software Engineer challenge](https://github.com/tractian/challenges/blob/main/mobile/README.md).
 
-## Getting Started
+## Example
 
-This project is a starting point for a Flutter application.
+Here's a short video showcasing the application, where I apply and mix search filters, collapse and expand items and scroll and refresh lists.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://github.com/TiagoLacerda/tractian/docs/video.mp4
 
 
-## TODO
+## Design deviations and assumptions
 
-+ Nest items (somehow)
+Here are a few points where I deviate from the proposed design and/or take certain liberties:
 
-+ Determine the depth of the whole tree (to limit width)
++ **Refresh**
 
-+ Tree approach
+    No refresh interactions are specified in the proposed design, however given the nature of the application (monitoring assets) I opted to include buttons for refreshing companies and assets, as well as an automatic refresh in the Assets page.
 
-    O(N) space
++ **Expand/Collapse**
 
-+ Map<String, List<String>> approach
+    It wasn't clear to me whether the application must support expanding/collapsing items, so I opted to include this, given that some datasets might be too long to expect the user to scroll.
 
-    O(N) space
++ **Company as root**
 
+    I opted to display the selected company as the root of the tree visualization, so the user can tell which company they're inspecting in the Assets page.
+
++ **Piping**
+
+    I've taken some liberty in the drawing of the lines that relate items in the tree, which I've chosen to call 'piping'.
+
+## Considerations
+
+Here are a few points about this implementation that I would change, if not for time and scope constraints.
+
++ **HTTP client encapsulation**
+    
+    In this implementation a very simple HTTP client is created every time a request is to be done. In a production app, it would be interesting to instantiate a single app-wide HTTP client with more robust capabilities, such as automatic retry and timeout, request/response interception (e.g. for logging) and for header and security settings injection.
+
++ **Testing**
+
+    No automated tests were developed. Were this a production application, which such critical functionality, a test-driven approach would be best, to ensure no decision is made or alarm is raised based on incorrect data.
+
++ **Search filters**
+
+    The search filters defined feel a bit rigid, with no option to filter only vibration sensors, or only operational components. Though a simple change, I believe it adds value to the user's experience.
