@@ -6,8 +6,7 @@ This project is my submission to Tractian's [Mobile Software Engineer challenge]
 
 Here's a short video showcasing the application, where I apply and mix search filters, collapse and expand items and scroll and refresh lists.
 
-https://github.com/TiagoLacerda/tractian/docs/video.mp4
-
+https://github.com/user-attachments/assets/31aef6ff-abc3-4db4-a947-ef9acbd2db90
 
 ## Design deviations and assumptions
 
