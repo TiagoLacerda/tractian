@@ -66,7 +66,7 @@ class AssetsController {
         company: company,
       );
 
-      node.foo(root, (a, b) {
+      node.bestEffortCompare(root, (a, b) {
         if (a.value.id == b.value.id) {
           a.value.collapsed = b.value.collapsed;
         }

@@ -25,11 +25,11 @@ class Node<T extends Object?> {
   /// 
   /// This may be used in a best-effort approach to keep some lingering data
   /// between refreshes (such as whether items are collapsed or not).
-  void foo(Node<T> other, void Function(Node<T> a, Node<T> b) compare) {
+  void bestEffortCompare(Node<T> other, void Function(Node<T> a, Node<T> b) compare) {
     compare(this, other);
 
     for (int i = 0; i < min(this.children.length, other.children.length); i++) {
-      this.children[i].foo(other.children[i], compare);
+      this.children[i].bestEffortCompare(other.children[i], compare);
     }
   }
 }
